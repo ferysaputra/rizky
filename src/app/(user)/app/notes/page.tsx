@@ -12,6 +12,7 @@ export default function NotesPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [newTitle, setNewTitle] = useState('');
     const [newBody, setNewBody] = useState('');
+    const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
 
     const noteColors = ['#fce4ec', '#f3e5f5', '#e8f5e9', '#fff3e0', '#e3f2fd', '#fce4ec'];
 
@@ -54,7 +55,14 @@ export default function NotesPage() {
     };
 
     const handleDelete = (id: string) => {
-        setNotes(notes.filter((n) => n.id !== id));
+        setNoteToDelete(id);
+    };
+
+    const confirmDelete = () => {
+        if (noteToDelete) {
+            setNotes(notes.filter((n) => n.id !== noteToDelete));
+            setNoteToDelete(null);
+        }
     };
 
     return (
@@ -68,7 +76,7 @@ export default function NotesPage() {
             {/* Search */}
             <div className="px-5 mb-4">
                 <div className="relative">
-                    <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
+                    {/* Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" /> */}
                     <input
                         type="text"
                         placeholder="Search notes..."
@@ -108,7 +116,7 @@ export default function NotesPage() {
                 <Plus size={24} />
             </button>
 
-            {/* Modal */}
+            {/* Note Edit Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center animate-fade-in">
                     <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 animate-slide-up">
@@ -147,6 +155,40 @@ export default function NotesPage() {
                             </div>
                             <button onClick={handleSave} className="btn-primary w-full py-3">
                                 {editingNote ? 'Update Note' : 'Create Note'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {noteToDelete && (
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center animate-fade-in">
+                    <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 animate-slide-up shadow-xl">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="font-display font-bold text-lg text-danger">Delete Note?</h2>
+                            <button
+                                onClick={() => setNoteToDelete(null)}
+                                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+                        <p className="text-sm text-foreground mb-6">
+                            Are you sure you want to delete this note? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setNoteToDelete(null)}
+                                className="flex-1 py-3 font-semibold text-sm rounded-xl bg-gray-100/80 text-foreground hover:bg-gray-200 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                className="flex-1 py-3 font-semibold text-sm rounded-xl bg-danger/10 text-danger hover:bg-danger/20 transition-colors"
+                            >
+                                Delete
                             </button>
                         </div>
                     </div>
