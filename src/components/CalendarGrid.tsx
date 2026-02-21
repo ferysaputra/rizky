@@ -19,6 +19,7 @@ import { getCyclePhase, getDayOfCycle, CyclePhase } from '@/lib/mock-data';
 interface CalendarGridProps {
     lastPeriodDate: Date;
     cycleLength: number;
+    periodLength?: number;
 }
 
 const phaseStyles: Record<CyclePhase, string> = {
@@ -28,7 +29,7 @@ const phaseStyles: Record<CyclePhase, string> = {
     normal: 'hover:bg-primary/5',
 };
 
-export default function CalendarGrid({ lastPeriodDate, cycleLength }: CalendarGridProps) {
+export default function CalendarGrid({ lastPeriodDate, cycleLength, periodLength = 5 }: CalendarGridProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date());
 
     const monthStart = startOfMonth(currentMonth);
@@ -87,7 +88,7 @@ export default function CalendarGrid({ lastPeriodDate, cycleLength }: CalendarGr
                         const today = isToday(d);
                         const dayNum = getDayOfCycle(d, lastPeriodDate);
                         const cycleDayInCycle = ((dayNum - 1) % cycleLength) + 1;
-                        const phase = cycleDayInCycle > 0 ? getCyclePhase(cycleDayInCycle, cycleLength) : 'normal';
+                        const phase = cycleDayInCycle > 0 ? getCyclePhase(cycleDayInCycle, cycleLength, periodLength) : 'normal';
 
                         return (
                             <div

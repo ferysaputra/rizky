@@ -253,9 +253,9 @@ export const mockUsers: User[] = [
 // === CYCLE CALCULATION HELPERS ===
 export type CyclePhase = 'period' | 'fertile' | 'ovulation' | 'normal';
 
-export function getCyclePhase(dayOfCycle: number, cycleLength: number): CyclePhase {
-    // Period: days 1-5
-    if (dayOfCycle >= 1 && dayOfCycle <= 5) return 'period';
+export function getCyclePhase(dayOfCycle: number, cycleLength: number, periodLength: number = 5): CyclePhase {
+    // Period: days 1 to periodLength
+    if (dayOfCycle >= 1 && dayOfCycle <= periodLength) return 'period';
 
     // Ovulation: typically around day 14 (cycleLength - 14)
     const ovulationDay = cycleLength - 14;
