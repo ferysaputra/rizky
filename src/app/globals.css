@@ -250,6 +250,7 @@ body {
 
 /* Phone frame on desktop */
 .phone-frame {
+  width: 100%;
   max-width: 430px;
   margin: 0 auto;
   min-height: 100vh;
