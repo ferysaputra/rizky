@@ -48,7 +48,7 @@ export default function CalendarPage() {
                         onClick={() => setShowSettings(!showSettings)}
                         className="w-10 h-10 rounded-xl glass-card flex items-center justify-center hover:bg-primary/5 transition-colors"
                     >
-                        <Settings size={18} className="text-muted" />
+                        <Settings size={30} className="text-muted" />
                     </button>
                 </div>
             </div>
