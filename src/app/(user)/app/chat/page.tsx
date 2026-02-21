@@ -45,9 +45,9 @@ export default function ChatPage() {
         <div className="flex flex-col h-[calc(100vh-6rem)] animate-fade-in">
             {/* Chat Header */}
             <div className="px-4 py-3 glass-card-strong rounded-none border-b border-border flex items-center gap-3 shrink-0">
-                <button className="w-8 h-8 rounded-lg hover:bg-primary/5 flex items-center justify-center transition-colors">
+                {/* <button className="w-8 h-8 rounded-lg hover:bg-primary/5 flex items-center justify-center transition-colors">
                     <ArrowLeft size={18} className="text-foreground" />
-                </button>
+                </button> */}
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm">
                     👩‍💼
                 </div>
@@ -58,9 +58,9 @@ export default function ChatPage() {
                         <span className="text-[10px] text-muted">Online</span>
                     </div>
                 </div>
-                <button className="w-8 h-8 rounded-lg hover:bg-primary/5 flex items-center justify-center transition-colors">
+                {/* <button className="w-8 h-8 rounded-lg hover:bg-primary/5 flex items-center justify-center transition-colors">
                     <MoreVertical size={18} className="text-muted" />
-                </button>
+                </button> */}
             </div>
 
             {/* Messages Area */}
@@ -85,9 +85,9 @@ export default function ChatPage() {
             {/* Input Area */}
             <div className="px-3 py-3 glass-card-strong rounded-none border-t border-border shrink-0">
                 <div className="flex items-end gap-2">
-                    <button className="w-10 h-10 rounded-xl hover:bg-primary/5 flex items-center justify-center transition-colors shrink-0">
+                    {/* <button className="w-10 h-10 rounded-xl hover:bg-primary/5 flex items-center justify-center transition-colors shrink-0">
                         <Paperclip size={18} className="text-muted" />
-                    </button>
+                    </button> */}
                     <div className="flex-1 relative">
                         <input
                             type="text"
@@ -97,9 +97,9 @@ export default function ChatPage() {
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                             className="input-field pr-10 text-sm"
                         />
-                        <button className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {/* <button className="absolute right-3 top-1/2 -translate-y-1/2">
                             <Smile size={18} className="text-muted hover:text-primary transition-colors" />
-                        </button>
+                        </button> */}
                     </div>
                     <button
                         onClick={handleSend}
