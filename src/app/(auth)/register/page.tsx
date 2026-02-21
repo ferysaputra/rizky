@@ -31,7 +31,7 @@ export default function RegisterPage() {
                         <div>
                             <label className="text-xs font-semibold text-muted block mb-1.5">Full Name</label>
                             <div className="relative">
-                                <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
+                                {/*<User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />*/}
                                 <input
                                     type="text"
                                     placeholder="Your full name"
@@ -45,7 +45,7 @@ export default function RegisterPage() {
                         <div>
                             <label className="text-xs font-semibold text-muted block mb-1.5">Email Address</label>
                             <div className="relative">
-                                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
+                                {/*<Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />*/}
                                 <input
                                     type="email"
                                     placeholder="your@email.com"
@@ -59,7 +59,7 @@ export default function RegisterPage() {
                         <div>
                             <label className="text-xs font-semibold text-muted block mb-1.5">Password</label>
                             <div className="relative">
-                                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
+                                {/*<Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />*/}
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     placeholder="Min. 8 characters"

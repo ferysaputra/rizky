@@ -31,7 +31,7 @@ export default function LoginPage() {
                         <div>
                             <label className="text-xs font-semibold text-muted block mb-1.5">Email Address</label>
                             <div className="relative">
-                                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
+                                {/*<Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />*/}
                                 <input
                                     type="email"
                                     placeholder="your@email.com"
@@ -45,7 +45,7 @@ export default function LoginPage() {
                         <div>
                             <label className="text-xs font-semibold text-muted block mb-1.5">Password</label>
                             <div className="relative">
-                                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
+                                {/*<Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />*/}
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     placeholder="••••••••"
@@ -67,9 +67,9 @@ export default function LoginPage() {
                                 <input type="checkbox" className="w-4 h-4 rounded accent-primary" />
                                 <span className="text-xs text-muted">Remember me</span>
                             </label>
-                            <button className="text-xs text-primary font-semibold hover:underline">
+                            {/* <button className="text-xs text-primary font-semibold hover:underline">
                                 Forgot Password?
-                            </button>
+                            </button> */}
                         </div>
 
                         <Link href="/app">
