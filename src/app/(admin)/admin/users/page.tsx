@@ -28,7 +28,7 @@ export default function UsersPage() {
             {/* Search */}
             <div className="mb-5 max-w-md">
                 <div className="relative">
-                    <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
+                    {/*Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />*/}
                     <input
                         type="text"
                         placeholder="Search by name or email..."

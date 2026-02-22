@@ -48,7 +48,7 @@ export default function AdminChatPage() {
                     {/* Search */}
                     <div className="p-4 border-b border-border">
                         <div className="relative">
-                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                            {/*Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />*/}
                             <input
                                 type="text"
                                 placeholder="Search conversations..."
@@ -126,8 +126,8 @@ export default function AdminChatPage() {
                                     <div className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'}`}>
                                         <div
                                             className={`px-4 py-2.5 max-w-[70%] text-sm leading-relaxed ${isAdmin
-                                                    ? 'bg-gradient-to-br from-primary to-accent text-white rounded-2xl rounded-br-sm'
-                                                    : 'bg-gray-100 text-foreground rounded-2xl rounded-bl-sm'
+                                                ? 'bg-gradient-to-br from-primary to-accent text-white rounded-2xl rounded-br-sm'
+                                                : 'bg-gray-100 text-foreground rounded-2xl rounded-bl-sm'
                                                 }`}
                                         >
                                             {msg.text}
