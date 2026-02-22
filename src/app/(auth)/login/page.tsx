@@ -21,8 +21,8 @@ export default function LoginPage() {
                     <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-4 shadow-lg shadow-primary/20">
                         <Heart size={28} className="text-white" fill="white" />
                     </div>
-                    <h1 className="font-display text-2xl font-extrabold gradient-text">Welcome Back</h1>
-                    <p className="text-muted text-sm mt-1">Sign in to continue to Smart Haid</p>
+                    <h1 className="font-display text-2xl font-extrabold gradient-text">Selamat Datang Kembali</h1>
+                    <p className="text-muted text-sm mt-1">Masuk untuk melanjutkan ke Smart Haid</p>
                 </div>
 
                 {/* Form */}
@@ -95,7 +95,7 @@ export default function LoginPage() {
 
                 {/* Register Link */}
                 <p className="text-center text-sm text-muted mt-6">
-                    Don&apos;t have an account?{' '}
+                    Belum punya akun?{' '}
                     <Link href="/register" className="text-primary font-semibold hover:underline">
                         Sign Up
                     </Link>

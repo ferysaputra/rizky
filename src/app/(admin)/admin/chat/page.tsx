@@ -38,8 +38,8 @@ export default function AdminChatPage() {
     return (
         <div className="animate-fade-in">
             <div className="mb-6">
-                <h1 className="font-display text-2xl font-bold">Support Chat</h1>
-                <p className="text-muted text-sm mt-1">Respond to user support requests</p>
+                <h1 className="font-display text-2xl font-bold">Obrolan Bantuan</h1>
+                <p className="text-muted text-sm mt-1">Tanggapi permintaan bantuan pengguna</p>
             </div>
 
             <div className="glass-card-strong overflow-hidden flex h-[calc(100vh-12rem)]">

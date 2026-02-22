@@ -28,8 +28,8 @@ export default function BottomNav() {
                                 key={item.href}
                                 href={item.href}
                                 className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-300 ${isActive
-                                        ? 'text-primary scale-105'
-                                        : 'text-muted hover:text-primary/70'
+                                    ? 'text-primary scale-105'
+                                    : 'text-muted hover:text-primary/70'
                                     }`}
                             >
                                 <div className={`relative ${isActive ? 'animate-float' : ''}`}>

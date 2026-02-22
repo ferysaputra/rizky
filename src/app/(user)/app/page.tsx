@@ -16,7 +16,7 @@ export default function AppHomePage() {
                             <Heart size={18} className="text-white" fill="white" />
                         </div>
                         <div>
-                            <p className="text-xs text-muted font-medium">Good morning ✨</p>
+                            <p className="text-xs text-muted font-medium">Selamat pagi ✨</p>
                             <h1 className="font-display text-lg font-bold">Smart Haid</h1>
                         </div>
                     </div>
@@ -38,12 +38,12 @@ export default function AppHomePage() {
                     <div className="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-white/10" />
                     <div className="absolute -right-2 -top-4 w-16 h-16 rounded-full bg-white/5" />
                     <div className="relative">
-                        <p className="text-white/80 text-xs font-medium">Your Cycle Day</p>
+                        <p className="text-white/80 text-xs font-medium">Hari Siklus Anda</p>
                         <div className="flex items-end gap-2 mt-1">
                             <span className="text-3xl font-display font-extrabold">Day 9</span>
                             <span className="text-white/70 text-sm mb-1">of 28</span>
                         </div>
-                        <p className="text-white/80 text-xs mt-1.5">🌿 Fertile window approaching</p>
+                        <p className="text-white/80 text-xs mt-1.5">🌿 Masa subur mendekat</p>
                     </div>
                 </div>
             </div>

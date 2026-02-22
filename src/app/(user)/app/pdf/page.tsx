@@ -5,8 +5,8 @@ export default function PdfPage() {
         <div className="animate-fade-in">
             {/* Header */}
             <div className="px-5 pt-6 pb-4">
-                <h1 className="font-display text-xl font-bold">PDF Resources</h1>
-                <p className="text-muted text-xs mt-1">Educational materials and guides</p>
+                <h1 className="font-display text-xl font-bold">Sumber Daya PDF</h1>
+                <p className="text-muted text-xs mt-1">Materi edukasi dan panduan</p>
             </div>
 
             {/* PDF Viewer */}
@@ -46,7 +46,7 @@ export default function PdfPage() {
                                     <h2 className="font-display font-bold text-base gradient-text">
                                         Women&apos;s Health Guide
                                     </h2>
-                                    <p className="text-muted text-xs mt-1">Smart Haid Educational Series</p>
+                                    <p className="text-muted text-xs mt-1">Seri Edukasi Smart Haid</p>
                                 </div>
 
                                 {/* Simulated content lines */}

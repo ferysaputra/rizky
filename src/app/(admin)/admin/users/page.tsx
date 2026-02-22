@@ -20,8 +20,8 @@ export default function UsersPage() {
         <div className="animate-fade-in">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="font-display text-2xl font-bold">Users</h1>
-                    <p className="text-muted text-sm mt-1">{users.length} registered users</p>
+                    <h1 className="font-display text-2xl font-bold">Pengguna</h1>
+                    <p className="text-muted text-sm mt-1">{users.length} pengguna terdaftar</p>
                 </div>
             </div>
 
@@ -137,7 +137,7 @@ export default function UsersPage() {
                                                             ))}
                                                         </div>
                                                     ) : (
-                                                        <p className="text-sm text-muted">No notes found for this user.</p>
+                                                        <p className="text-sm text-muted">Tidak ada catatan untuk pengguna ini.</p>
                                                     )}
                                                 </div>
                                             </td>

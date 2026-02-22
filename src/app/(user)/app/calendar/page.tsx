@@ -43,7 +43,7 @@ export default function CalendarPage() {
             {/* Header */}
             <div className="px-5 pt-6 pb-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="font-display text-xl font-bold">Cycle Calendar</h1>
+                    <h1 className="font-display text-xl font-bold">Kalender Siklus</h1>
                     <button
                         onClick={() => setShowSettings(!showSettings)}
                         className="w-10 h-10 rounded-xl glass-card flex items-center justify-center hover:bg-primary/5 transition-colors"
@@ -66,7 +66,7 @@ export default function CalendarPage() {
                                 {phaseIcon}
                                 <span className="font-semibold text-sm">{currentPhase}</span>
                             </div>
-                            <p className="text-muted text-xs mt-1">Cycle length: {cycleLength} days</p>
+                            <p className="text-muted text-xs mt-1">Panjang siklus: {cycleLength} days</p>
                             <div className="mt-2 h-1.5 rounded-full bg-border overflow-hidden">
                                 <div
                                     className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
@@ -143,28 +143,28 @@ export default function CalendarPage() {
                             <Droplets size={14} className="text-period-red" />
                             <span className="text-xs font-bold text-period-red">Period</span>
                         </div>
-                        <p className="text-[10px] text-muted">Days 1–{periodLength}</p>
+                        <p className="text-[10px] text-muted">Hari 1–{periodLength}</p>
                     </div>
                     <div className="glass-card p-3 border-l-3 border-l-fertile-green">
                         <div className="flex items-center gap-1.5 mb-1">
                             <Flower2 size={14} className="text-fertile-green" />
                             <span className="text-xs font-bold text-fertile-green">Fertile</span>
                         </div>
-                        <p className="text-[10px] text-muted">Days {ovulationDay - 5}–{ovulationDay + 1}</p>
+                        <p className="text-[10px] text-muted">Hari {ovulationDay - 5}–{ovulationDay + 1}</p>
                     </div>
                     <div className="glass-card p-3 border-l-3 border-l-ovulation-purple">
                         <div className="flex items-center gap-1.5 mb-1">
                             <Flower2 size={14} className="text-ovulation-purple" />
                             <span className="text-xs font-bold text-ovulation-purple">Ovulation</span>
                         </div>
-                        <p className="text-[10px] text-muted">Day {ovulationDay}</p>
+                        <p className="text-[10px] text-muted">Hari {ovulationDay}</p>
                     </div>
                     <div className="glass-card p-3 border-l-3 border-l-warning">
                         <div className="flex items-center gap-1.5 mb-1">
                             <Sun size={14} className="text-warning" />
                             <span className="text-xs font-bold text-warning">Luteal</span>
                         </div>
-                        <p className="text-[10px] text-muted">Days {ovulationDay + 1}–{cycleLength}</p>
+                        <p className="text-[10px] text-muted">Hari {ovulationDay + 1}–{cycleLength}</p>
                     </div>
                 </div>
             </div>

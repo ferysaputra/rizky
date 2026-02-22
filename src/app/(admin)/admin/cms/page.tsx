@@ -19,8 +19,8 @@ export default function CmsPage() {
         <div className="animate-fade-in">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="font-display text-2xl font-bold">Content Manager</h1>
-                    <p className="text-muted text-sm mt-1">Manage articles, videos, and PDF resources</p>
+                    <h1 className="font-display text-2xl font-bold">Pengelola Konten</h1>
+                    <p className="text-muted text-sm mt-1">Kelola artikel, video, dan sumber daya PDF</p>
                 </div>
                 <button
                     onClick={() => setShowArticleModal(true)}
@@ -41,8 +41,8 @@ export default function CmsPage() {
                         key={tab.key}
                         onClick={() => setActiveTab(tab.key)}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === tab.key
-                                ? 'bg-white shadow-sm text-foreground'
-                                : 'text-muted hover:text-foreground'
+                            ? 'bg-white shadow-sm text-foreground'
+                            : 'text-muted hover:text-foreground'
                             }`}
                     >
                         <tab.icon size={16} />
@@ -162,8 +162,8 @@ export default function CmsPage() {
                             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                                 <Plus size={20} className="text-primary" />
                             </div>
-                            <p className="text-sm font-semibold text-muted">Add Video</p>
-                            <p className="text-xs text-muted/60 mt-1">Paste YouTube link</p>
+                            <p className="text-sm font-semibold text-muted">Tambah Video</p>
+                            <p className="text-xs text-muted/60 mt-1">Tempel tautan YouTube</p>
                         </div>
                     </div>
                 </div>
@@ -181,7 +181,7 @@ export default function CmsPage() {
                                 </div>
                                 <div>
                                     <h3 className="text-sm font-bold">Health_Guide_2026.pdf</h3>
-                                    <p className="text-xs text-muted">2.4 MB • Uploaded Feb 15, 2026</p>
+                                    <p className="text-xs text-muted">2.4 MB • Diunggah 15 Feb 2026</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
@@ -199,9 +199,9 @@ export default function CmsPage() {
                             <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                                 <Upload size={24} className="text-primary" />
                             </div>
-                            <p className="text-sm font-semibold text-foreground">Upload New PDF</p>
-                            <p className="text-xs text-muted mt-1">Drag & drop or click to browse</p>
-                            <p className="text-[10px] text-muted/50 mt-2">Max file size: 10MB</p>
+                            <p className="text-sm font-semibold text-foreground">Unggah PDF Baru</p>
+                            <p className="text-xs text-muted mt-1">Seret & lepas atau klik untuk mencari</p>
+                            <p className="text-[10px] text-muted/50 mt-2">Ukuran file maks: 10MB</p>
                         </div>
                     </div>
                 </div>

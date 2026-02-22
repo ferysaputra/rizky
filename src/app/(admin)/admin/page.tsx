@@ -11,8 +11,8 @@ export default function AdminDashboardPage() {
     return (
         <div className="animate-fade-in">
             <div className="mb-8">
-                <h1 className="font-display text-2xl font-bold">Welcome back, Admin 👋</h1>
-                <p className="text-muted text-sm mt-1">Here&apos;s what&apos;s happening with Smart Haid today</p>
+                <h1 className="font-display text-2xl font-bold">Selamat datang kembali, Admin 👋</h1>
+                <p className="text-muted text-sm mt-1">Berikut yang terjadi dengan Smart Haid hari ini</p>
             </div>
 
             {/* Stats Grid */}

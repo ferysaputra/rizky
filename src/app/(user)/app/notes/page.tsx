@@ -69,8 +69,8 @@ export default function NotesPage() {
         <div className="animate-fade-in relative">
             {/* Header */}
             <div className="px-5 pt-6 pb-4">
-                <h1 className="font-display text-xl font-bold">My Notes</h1>
-                <p className="text-muted text-xs mt-1">{notes.length} notes</p>
+                <h1 className="font-display text-xl font-bold">Catatanku</h1>
+                <p className="text-muted text-xs mt-1">{notes.length} catatan</p>
             </div>
 
             {/* Search */}
@@ -103,7 +103,7 @@ export default function NotesPage() {
                 {filteredNotes.length === 0 && (
                     <div className="text-center py-12">
                         <p className="text-4xl mb-3">📝</p>
-                        <p className="text-muted text-sm">No notes found</p>
+                        <p className="text-muted text-sm">Tidak ada catatan ditemukan</p>
                     </div>
                 )}
             </div>
@@ -175,7 +175,7 @@ export default function NotesPage() {
                             </button>
                         </div>
                         <p className="text-sm text-foreground mb-6">
-                            Are you sure you want to delete this note? This action cannot be undone.
+                            Apakah Anda yakin ingin menghapus catatan ini? Tindakan ini tidak dapat dibatalkan.
                         </p>
                         <div className="flex gap-3">
                             <button
