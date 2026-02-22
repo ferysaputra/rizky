@@ -10,7 +10,7 @@ export default function AdminLayout({
             <Sidebar />
             <main className="flex-1 overflow-auto">
                 {/* Top Bar */}
-                <header className="h-16 border-b border-gray-200 bg-white/80 backdrop-blur-sm flex items-center justify-between px-4 pl-14 md:px-8 sticky top-0 z-20">
+                <header className="h-16 border-b border-gray-200 bg-white/80 backdrop-blur-sm flex items-center justify-between px-4 pl-14 md:px-8 md:pl-16 sticky top-0 z-20">
                     <div>
                         <h2 className="font-display font-bold text-lg text-foreground">Dashboard</h2>
                     </div>
