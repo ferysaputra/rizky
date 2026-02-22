@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, FileEdit, Users, MessageSquare, Settings, LogOut, Heart, Menu, X } from 'lucide-react';
@@ -14,14 +14,20 @@ const sidebarItems = [
 
 export default function Sidebar() {
     const pathname = usePathname();
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(true);
+
+    useEffect(() => {
+        if (window.innerWidth < 768) {
+            setIsOpen(false);
+        }
+    }, []);
 
     return (
         <>
-            {/* Mobile toggle button */}
+            {/* Toggle button */}
             <button
-                onClick={() => setIsOpen(true)}
-                className="md:hidden fixed top-3.5 left-4 z-40 p-2 bg-white rounded-lg shadow-sm border border-border text-foreground"
+                onClick={() => setIsOpen(!isOpen)}
+                className={`fixed top-3.5 z-40 p-2 bg-white rounded-lg shadow-sm border border-border text-foreground transition-all duration-300 ${isOpen ? 'left-[264px] md:left-[272px]' : 'left-4'}`}
             >
                 <Menu size={20} />
             </button>
@@ -29,16 +35,16 @@ export default function Sidebar() {
             {/* Mobile overlay */}
             {isOpen && (
                 <div
-                    className="md:hidden fixed inset-0 bg-black/50 z-40 animate-fade-in"
+                    className="md:hidden fixed inset-0 bg-black/50 z-30 animate-fade-in"
                     onClick={() => setIsOpen(false)}
                 />
             )}
 
             {/* Sidebar container */}
             <aside className={`
-                admin-sidebar w-64 min-h-screen flex flex-col p-4 shrink-0 
-                fixed md:sticky md:top-0 left-0 z-50 h-[100dvh] transition-transform duration-300 ease-in-out
-                ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                admin-sidebar min-h-screen flex flex-col p-4 shrink-0 
+                fixed md:relative left-0 top-0 z-40 h-[100dvh] transition-all duration-300 ease-in-out overflow-hidden
+                ${isOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full md:translate-x-0 px-0 opacity-0 md:opacity-100'}
             `}>
                 {/* Close button inside sidebar for mobile */}
                 <button
