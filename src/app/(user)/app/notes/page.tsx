@@ -1,20 +1,37 @@
 'use client';
 
-import { useState } from 'react';
-import { mockNotes, Note } from '@/lib/mock-data';
+import { useState, useEffect } from 'react';
 import NoteCard from '@/components/NoteCard';
-import { Plus, X, Search } from 'lucide-react';
+import { Plus, X, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { getNotes, createNote, updateNote, deleteNote, Note } from '@/lib/firestore/notes';
 
 export default function NotesPage() {
-    const [notes, setNotes] = useState<Note[]>(mockNotes);
+    const { user } = useAuth();
+    const [notes, setNotes] = useState<Note[]>([]);
+    const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editingNote, setEditingNote] = useState<Note | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [newTitle, setNewTitle] = useState('');
     const [newBody, setNewBody] = useState('');
     const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
+    const [saving, setSaving] = useState(false);
 
-    const noteColors = ['#fce4ec', '#f3e5f5', '#e8f5e9', '#fff3e0', '#e3f2fd', '#fce4ec'];
+    useEffect(() => {
+        if (!user) return;
+        async function fetchNotes() {
+            try {
+                const data = await getNotes(user!.uid);
+                setNotes(data);
+            } catch (error) {
+                console.error('Error fetching notes:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchNotes();
+    }, [user]);
 
     const filteredNotes = notes.filter(
         (n) =>
@@ -36,32 +53,46 @@ export default function NotesPage() {
         setShowModal(true);
     };
 
-    const handleSave = () => {
-        if (!newTitle.trim()) return;
-        if (editingNote) {
-            setNotes(notes.map((n) => (n.id === editingNote.id ? { ...n, title: newTitle, body: newBody } : n)));
-        } else {
-            const newNote: Note = {
-                id: Date.now().toString(),
-                userId: 'user1',
-                title: newTitle,
-                body: newBody,
-                createdAt: new Date(),
-                color: noteColors[Math.floor(Math.random() * noteColors.length)],
-            };
-            setNotes([newNote, ...notes]);
+    const handleSave = async () => {
+        if (!newTitle.trim() || !user) return;
+        setSaving(true);
+        try {
+            if (editingNote) {
+                await updateNote(editingNote.id, { title: newTitle, body: newBody });
+                setNotes(notes.map((n) => (n.id === editingNote.id ? { ...n, title: newTitle, body: newBody } : n)));
+            } else {
+                const docRef = await createNote(user.uid, newTitle, newBody);
+                const newNoteObj: Note = {
+                    id: docRef.id,
+                    userId: user.uid,
+                    title: newTitle,
+                    body: newBody,
+                    createdAt: new Date(),
+                    color: ['#fce4ec', '#f3e5f5', '#e8f5e9', '#fff3e0', '#e3f2fd'][Math.floor(Math.random() * 5)],
+                };
+                setNotes([newNoteObj, ...notes]);
+            }
+            setShowModal(false);
+        } catch (error) {
+            console.error('Error saving note:', error);
+        } finally {
+            setSaving(false);
         }
-        setShowModal(false);
     };
 
     const handleDelete = (id: string) => {
         setNoteToDelete(id);
     };
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (noteToDelete) {
-            setNotes(notes.filter((n) => n.id !== noteToDelete));
-            setNoteToDelete(null);
+            try {
+                await deleteNote(noteToDelete);
+                setNotes(notes.filter((n) => n.id !== noteToDelete));
+                setNoteToDelete(null);
+            } catch (error) {
+                console.error('Error deleting note:', error);
+            }
         }
     };
 
@@ -76,10 +107,9 @@ export default function NotesPage() {
             {/* Search */}
             <div className="px-5 mb-4">
                 <div className="relative">
-                    {/* Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" /> */}
                     <input
                         type="text"
-                        placeholder="Search notes..."
+                        placeholder="Cari catatan..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="input-field pl-10 text-sm"
@@ -89,22 +119,32 @@ export default function NotesPage() {
 
             {/* Notes Grid */}
             <div className="px-5 mb-5">
-                <div className="grid grid-cols-1 gap-3 stagger-children">
-                    {filteredNotes.map((note) => (
-                        <NoteCard
-                            key={note.id}
-                            note={note}
-                            onEdit={openEditModal}
-                            onDelete={handleDelete}
-                        />
-                    ))}
-                </div>
-
-                {filteredNotes.length === 0 && (
-                    <div className="text-center py-12">
-                        <p className="text-4xl mb-3">📝</p>
-                        <p className="text-muted text-sm">Tidak ada catatan ditemukan</p>
+                {loading ? (
+                    <div className="flex flex-col gap-3">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="h-24 rounded-xl bg-gray-100 animate-pulse" />
+                        ))}
                     </div>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-1 gap-3 stagger-children">
+                            {filteredNotes.map((note) => (
+                                <NoteCard
+                                    key={note.id}
+                                    note={note}
+                                    onEdit={openEditModal}
+                                    onDelete={handleDelete}
+                                />
+                            ))}
+                        </div>
+
+                        {filteredNotes.length === 0 && (
+                            <div className="text-center py-12">
+                                <p className="text-4xl mb-3">📝</p>
+                                <p className="text-muted text-sm">Tidak ada catatan ditemukan</p>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
@@ -122,7 +162,7 @@ export default function NotesPage() {
                     <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 animate-slide-up">
                         <div className="flex items-center justify-between mb-5">
                             <h2 className="font-display font-bold text-lg">
-                                {editingNote ? 'Edit Note' : 'New Note'}
+                                {editingNote ? 'Edit Catatan' : 'Catatan Baru'}
                             </h2>
                             <button
                                 onClick={() => setShowModal(false)}
@@ -134,27 +174,32 @@ export default function NotesPage() {
 
                         <div className="space-y-4">
                             <div>
-                                <label className="text-xs text-muted font-semibold block mb-1.5">Title</label>
+                                <label className="text-xs text-muted font-semibold block mb-1.5">Judul</label>
                                 <input
                                     type="text"
-                                    placeholder="Note title..."
+                                    placeholder="Judul catatan..."
                                     value={newTitle}
                                     onChange={(e) => setNewTitle(e.target.value)}
                                     className="input-field"
                                 />
                             </div>
                             <div>
-                                <label className="text-xs text-muted font-semibold block mb-1.5">Content</label>
+                                <label className="text-xs text-muted font-semibold block mb-1.5">Isi</label>
                                 <textarea
-                                    placeholder="Write your note..."
+                                    placeholder="Tulis catatan Anda..."
                                     value={newBody}
                                     onChange={(e) => setNewBody(e.target.value)}
                                     rows={5}
                                     className="input-field resize-none"
                                 />
                             </div>
-                            <button onClick={handleSave} className="btn-primary w-full py-3">
-                                {editingNote ? 'Update Note' : 'Create Note'}
+                            <button
+                                onClick={handleSave}
+                                disabled={saving}
+                                className="btn-primary w-full py-3 flex items-center justify-center gap-2 disabled:opacity-60"
+                            >
+                                {saving ? <Loader2 size={16} className="animate-spin" /> : null}
+                                {editingNote ? 'Perbarui Catatan' : 'Buat Catatan'}
                             </button>
                         </div>
                     </div>
@@ -166,7 +211,7 @@ export default function NotesPage() {
                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center animate-fade-in">
                     <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 animate-slide-up shadow-xl">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-display font-bold text-lg text-danger">Delete Note?</h2>
+                            <h2 className="font-display font-bold text-lg text-danger">Hapus Catatan?</h2>
                             <button
                                 onClick={() => setNoteToDelete(null)}
                                 className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
@@ -182,13 +227,13 @@ export default function NotesPage() {
                                 onClick={() => setNoteToDelete(null)}
                                 className="flex-1 py-3 font-semibold text-sm rounded-xl bg-gray-100/80 text-foreground hover:bg-gray-200 transition-colors"
                             >
-                                Cancel
+                                Batal
                             </button>
                             <button
                                 onClick={confirmDelete}
                                 className="flex-1 py-3 font-semibold text-sm rounded-xl bg-danger/10 text-danger hover:bg-danger/20 transition-colors"
                             >
-                                Delete
+                                Hapus
                             </button>
                         </div>
                     </div>

@@ -1,4 +1,7 @@
+'use client';
+
 import BottomNav from '@/components/BottomNav';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function UserLayout({
     children,
@@ -6,13 +9,15 @@ export default function UserLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="bg-background min-h-screen flex justify-center">
-            <div className="phone-frame relative overflow-x-hidden">
-                <div className="pb-24">
-                    {children}
+        <ProtectedRoute>
+            <div className="bg-background min-h-screen flex justify-center">
+                <div className="phone-frame relative overflow-x-hidden">
+                    <div className="pb-24">
+                        {children}
+                    </div>
+                    <BottomNav />
                 </div>
-                <BottomNav />
             </div>
-        </div>
+        </ProtectedRoute>
     );
 }

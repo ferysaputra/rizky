@@ -1,20 +1,52 @@
 'use client';
 
-import { useState } from 'react';
-import { mockUsers, mockNotes } from '@/lib/mock-data';
-import { Search, ChevronDown, ChevronUp, StickyNote, Mail, Clock } from 'lucide-react';
-import { format } from 'date-fns';
+import { useState, useEffect } from 'react';
+import { getUsers, UserProfile } from '@/lib/firestore/users';
+import { getNotes, Note } from '@/lib/firestore/notes';
+import { Search, ChevronDown, ChevronRight } from 'lucide-react';
 
-export default function UsersPage() {
+export default function AdminUsersPage() {
+    const [users, setUsers] = useState<UserProfile[]>([]);
+    const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [expandedUser, setExpandedUser] = useState<string | null>(null);
+    const [userNotes, setUserNotes] = useState<Record<string, Note[]>>({});
 
-    const users = mockUsers.filter((u) => u.role === 'user');
+    useEffect(() => {
+        async function fetchUsers() {
+            try {
+                const data = await getUsers();
+                setUsers(data.filter((u) => u.role === 'user'));
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchUsers();
+    }, []);
+
     const filteredUsers = users.filter(
         (u) =>
             u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             u.email.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    const toggleUserNotes = async (uid: string) => {
+        if (expandedUser === uid) {
+            setExpandedUser(null);
+            return;
+        }
+        setExpandedUser(uid);
+        if (!userNotes[uid]) {
+            try {
+                const notes = await getNotes(uid);
+                setUserNotes((prev) => ({ ...prev, [uid]: notes }));
+            } catch (error) {
+                console.error('Error fetching user notes:', error);
+            }
+        }
+    };
 
     return (
         <div className="animate-fade-in">
@@ -26,128 +58,114 @@ export default function UsersPage() {
             </div>
 
             {/* Search */}
-            <div className="mb-5 max-w-md">
-                <div className="relative">
-                    {/*Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />*/}
+            <div className="mb-6">
+                <div className="relative max-w-md">
+                    <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
                     <input
                         type="text"
-                        placeholder="Search by name or email..."
+                        placeholder="Cari pengguna..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="input-field pl-10"
+                        className="input-field pl-10 text-sm"
                     />
                 </div>
             </div>
 
             {/* Users Table */}
             <div className="glass-card-strong overflow-hidden">
-                <table className="w-full">
-                    <thead>
-                        <tr className="border-b border-border">
-                            <th className="text-left px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">User</th>
-                            <th className="text-left px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">Email</th>
-                            <th className="text-left px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">Last Login</th>
-                            <th className="text-left px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">Cycle</th>
-                            <th className="text-center px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">Notes</th>
-                            <th className="w-12"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredUsers.map((user) => {
-                            const userNotes = mockNotes.filter((n) => n.userId === user.uid);
-                            const isExpanded = expandedUser === user.uid;
-
-                            return (
-                                <>
-                                    <tr
-                                        key={user.uid}
-                                        className={`border-b border-border/50 hover:bg-gray-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-primary/[0.02]' : ''
-                                            }`}
-                                        onClick={() => setExpandedUser(isExpanded ? null : user.uid)}
-                                    >
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-lg">
-                                                    {user.avatar}
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-semibold">{user.name}</p>
-                                                    <p className="text-xs text-muted">ID: {user.uid}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-1.5 text-sm text-muted">
-                                                <Mail size={14} />
-                                                {user.email}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-1.5 text-sm text-muted">
-                                                <Clock size={14} />
-                                                {format(user.lastLogin, 'MMM dd, HH:mm')}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            {user.cycleSettings ? (
-                                                <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-                                                    {user.cycleSettings.length} days
-                                                </span>
-                                            ) : (
-                                                <span className="text-xs text-muted">Not set</span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className="px-2.5 py-1 rounded-full bg-accent/10 text-accent text-xs font-semibold">
-                                                {userNotes.length}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            {isExpanded ? (
-                                                <ChevronUp size={16} className="text-muted" />
-                                            ) : (
-                                                <ChevronDown size={16} className="text-muted" />
-                                            )}
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead>
+                            <tr className="border-b border-border">
+                                <th className="text-left text-xs font-semibold text-muted p-4">Pengguna</th>
+                                <th className="text-left text-xs font-semibold text-muted p-4">Email</th>
+                                <th className="text-left text-xs font-semibold text-muted p-4">Masuk Terakhir</th>
+                                <th className="text-left text-xs font-semibold text-muted p-4">Siklus</th>
+                                <th className="text-left text-xs font-semibold text-muted p-4">Catatan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                Array.from({ length: 4 }).map((_, i) => (
+                                    <tr key={i}>
+                                        <td colSpan={5} className="p-4">
+                                            <div className="h-10 rounded bg-gray-100 animate-pulse" />
                                         </td>
                                     </tr>
-
-                                    {/* Expanded Notes */}
-                                    {isExpanded && (
-                                        <tr key={`${user.uid}-notes`}>
-                                            <td colSpan={6} className="px-6 py-4 bg-gray-50/50">
-                                                <div className="pl-12">
-                                                    <div className="flex items-center gap-2 mb-3">
-                                                        <StickyNote size={14} className="text-accent" />
-                                                        <h4 className="text-sm font-semibold text-accent">User Notes (Read-only)</h4>
+                                ))
+                            ) : filteredUsers.length === 0 ? (
+                                <tr>
+                                    <td colSpan={5} className="text-center text-muted text-sm p-8">
+                                        Tidak ada pengguna ditemukan
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredUsers.map((user) => (
+                                    <>
+                                        <tr key={user.uid} className="border-b border-border/50 hover:bg-gray-50/50 transition-colors">
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-base">
+                                                        {user.avatar}
                                                     </div>
-                                                    {userNotes.length > 0 ? (
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                            {userNotes.map((note) => (
-                                                                <div
-                                                                    key={note.id}
-                                                                    className="bg-white rounded-xl p-3.5 border border-border/50"
-                                                                    style={{ borderLeft: `3px solid ${note.color}` }}
-                                                                >
-                                                                    <h5 className="text-sm font-semibold">{note.title}</h5>
-                                                                    <p className="text-xs text-muted mt-1 line-clamp-2">{note.body}</p>
-                                                                    <p className="text-[10px] text-muted/50 mt-2">
-                                                                        {format(note.createdAt, 'MMM dd, yyyy')}
-                                                                    </p>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    ) : (
-                                                        <p className="text-sm text-muted">Tidak ada catatan untuk pengguna ini.</p>
-                                                    )}
+                                                    <div>
+                                                        <p className="text-sm font-semibold">{user.name}</p>
+                                                        <p className="text-xs text-muted">ID: {user.uid}</p>
+                                                    </div>
                                                 </div>
                                             </td>
+                                            <td className="p-4 text-sm">{user.email}</td>
+                                            <td className="p-4 text-sm text-muted">
+                                                {user.lastLogin.toLocaleDateString('id-ID')}
+                                            </td>
+                                            <td className="p-4 text-sm">
+                                                {user.cycleSettings ? (
+                                                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                                                        {user.cycleSettings.length} hari
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-xs text-muted">Belum diatur</span>
+                                                )}
+                                            </td>
+                                            <td className="p-4">
+                                                <button
+                                                    onClick={() => toggleUserNotes(user.uid)}
+                                                    className="flex items-center gap-1 text-xs text-primary hover:underline"
+                                                >
+                                                    {expandedUser === user.uid ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                                    Lihat catatan
+                                                </button>
+                                            </td>
                                         </tr>
-                                    )}
-                                </>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                                        {expandedUser === user.uid && (
+                                            <tr key={`notes-${user.uid}`}>
+                                                <td colSpan={5} className="bg-gray-50/50 p-4">
+                                                    <h4 className="text-xs font-semibold text-muted mb-2">Catatan Pengguna (Hanya baca)</h4>
+                                                    {userNotes[user.uid] ? (
+                                                        userNotes[user.uid].length > 0 ? (
+                                                            <div className="space-y-2">
+                                                                {userNotes[user.uid].map((note) => (
+                                                                    <div key={note.id} className="bg-white p-3 rounded-lg border border-border/50">
+                                                                        <p className="text-sm font-semibold">{note.title}</p>
+                                                                        <p className="text-xs text-muted mt-1">{note.body}</p>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <p className="text-sm text-muted">Tidak ada catatan untuk pengguna ini.</p>
+                                                        )
+                                                    ) : (
+                                                        <div className="h-8 w-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

@@ -1,10 +1,60 @@
-import { mockArticles } from '@/lib/mock-data';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import ArticleCard from '@/components/ArticleCard';
-import { Heart, Bell, Search, Play } from 'lucide-react';
+import { Heart, LogOut, Search, Play } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { getArticles, Article } from '@/lib/firestore/articles';
 
 export default function AppHomePage() {
-    const featuredArticle = mockArticles[0];
-    const otherArticles = mockArticles.slice(1);
+    const { userData, logout } = useAuth();
+    const router = useRouter();
+    const [articles, setArticles] = useState<Article[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchArticles() {
+            try {
+                const data = await getArticles();
+                setArticles(data);
+            } catch (error) {
+                console.error('Error fetching articles:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchArticles();
+    }, []);
+
+    const featuredArticle = articles[0];
+    const otherArticles = articles.slice(1);
+
+    // Calculate cycle day from user data
+    let cycleDayInCycle = 1;
+    let cycleLength = 28;
+    let phaseText = '🌿 Masa subur mendekat';
+
+    if (userData?.cycleSettings) {
+        cycleLength = userData.cycleSettings.length;
+        const periodLength = userData.cycleSettings.periodLength || 5;
+        const today = new Date();
+        const lastPeriod = new Date(userData.cycleSettings.lastDate);
+        const diffTime = today.getTime() - lastPeriod.getTime();
+        const currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        cycleDayInCycle = ((currentDay - 1) % cycleLength) + 1;
+
+        const ovulationDay = cycleLength - 14;
+        if (cycleDayInCycle <= periodLength) {
+            phaseText = '🩸 Sedang menstruasi';
+        } else if (cycleDayInCycle >= ovulationDay - 5 && cycleDayInCycle <= ovulationDay + 1) {
+            phaseText = '🌿 Masa subur';
+        } else if (cycleDayInCycle === ovulationDay) {
+            phaseText = '🌸 Hari ovulasi';
+        } else {
+            phaseText = '☀️ Fase luteal';
+        }
+    }
 
     return (
         <div className="animate-fade-in">
@@ -16,7 +66,7 @@ export default function AppHomePage() {
                             <Heart size={18} className="text-white" fill="white" />
                         </div>
                         <div>
-                            <p className="text-xs text-muted font-medium">Selamat pagi ✨</p>
+                            <p className="text-xs text-muted font-medium">Selamat pagi, {userData?.name?.split(' ')[0] || 'User'} ✨</p>
                             <h1 className="font-display text-lg font-bold">Smart Haid</h1>
                         </div>
                     </div>
@@ -24,9 +74,12 @@ export default function AppHomePage() {
                         <button className="w-10 h-10 rounded-xl glass-card flex items-center justify-center hover:bg-primary/5 transition-colors">
                             <Search size={18} className="text-muted" />
                         </button>
-                        <button className="w-10 h-10 rounded-xl glass-card flex items-center justify-center hover:bg-primary/5 transition-colors relative">
-                            <Bell size={18} className="text-muted" />
-                            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" />
+                        <button
+                            onClick={async () => { await logout(); router.push('/'); }}
+                            className="w-10 h-10 rounded-xl glass-card flex items-center justify-center hover:bg-danger/10 transition-colors"
+                            title="Keluar"
+                        >
+                            <LogOut size={18} className="text-danger" />
                         </button>
                     </div>
                 </div>
@@ -40,31 +93,37 @@ export default function AppHomePage() {
                     <div className="relative">
                         <p className="text-white/80 text-xs font-medium">Hari Siklus Anda</p>
                         <div className="flex items-end gap-2 mt-1">
-                            <span className="text-3xl font-display font-extrabold">Day 9</span>
-                            <span className="text-white/70 text-sm mb-1">of 28</span>
+                            <span className="text-3xl font-display font-extrabold">Hari {cycleDayInCycle}</span>
+                            <span className="text-white/70 text-sm mb-1">dari {cycleLength}</span>
                         </div>
-                        <p className="text-white/80 text-xs mt-1.5">🌿 Masa subur mendekat</p>
+                        <p className="text-white/80 text-xs mt-1.5">{phaseText}</p>
                     </div>
                 </div>
             </div>
 
             {/* Featured Article */}
-            <div className="px-5 mb-5">
-                <div className="flex items-center justify-between mb-3">
-                    <h2 className="font-display font-bold text-sm">Featured</h2>
-                    <button className="text-xs text-primary font-semibold">See all</button>
+            {loading ? (
+                <div className="px-5 mb-5">
+                    <div className="h-48 rounded-2xl bg-gray-100 animate-pulse" />
                 </div>
-                <ArticleCard article={featuredArticle} variant="featured" />
-            </div>
+            ) : featuredArticle && (
+                <div className="px-5 mb-5">
+                    <div className="flex items-center justify-between mb-3">
+                        <h2 className="font-display font-bold text-sm">Pilihan</h2>
+                        <button className="text-xs text-primary font-semibold">Lihat semua</button>
+                    </div>
+                    <ArticleCard article={featuredArticle} variant="featured" />
+                </div>
+            )}
 
             {/* Video Section */}
             <div className="px-5 mb-5">
                 <div className="flex items-center justify-between mb-3">
-                    <h2 className="font-display font-bold text-sm">Watch & Learn</h2>
-                    <button className="text-xs text-primary font-semibold">See all</button>
+                    <h2 className="font-display font-bold text-sm">Tonton &amp; Pelajari</h2>
+                    <button className="text-xs text-primary font-semibold">Lihat semua</button>
                 </div>
                 <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
-                    {['Health Tips', 'Yoga Flow', 'Nutrition'].map((title, i) => (
+                    {['Tips Kesehatan', 'Yoga', 'Nutrisi'].map((title, i) => (
                         <div
                             key={i}
                             className="min-w-[160px] h-[100px] rounded-2xl bg-gradient-to-br from-primary/10 via-accent/5 to-primary-light/10 flex flex-col items-center justify-center cursor-pointer group transition-all duration-300 hover:shadow-md shrink-0"
@@ -81,12 +140,20 @@ export default function AppHomePage() {
             {/* Recent Articles */}
             <div className="px-5 mb-5">
                 <div className="flex items-center justify-between mb-3">
-                    <h2 className="font-display font-bold text-sm">Recent Articles</h2>
+                    <h2 className="font-display font-bold text-sm">Artikel Terbaru</h2>
                 </div>
                 <div className="flex flex-col gap-3 stagger-children">
-                    {otherArticles.map((article) => (
-                        <ArticleCard key={article.id} article={article} variant="compact" />
-                    ))}
+                    {loading ? (
+                        Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="h-20 rounded-xl bg-gray-100 animate-pulse" />
+                        ))
+                    ) : otherArticles.length > 0 ? (
+                        otherArticles.map((article) => (
+                            <ArticleCard key={article.id} article={article} variant="compact" />
+                        ))
+                    ) : (
+                        <p className="text-muted text-sm text-center py-4">Belum ada artikel</p>
+                    )}
                 </div>
             </div>
         </div>

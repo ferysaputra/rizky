@@ -1,4 +1,4 @@
-import { Article } from '@/lib/mock-data';
+import { Article } from '@/lib/firestore/articles';
 import { Calendar, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 

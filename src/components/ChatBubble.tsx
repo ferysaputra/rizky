@@ -1,4 +1,4 @@
-import { ChatMessage } from '@/lib/mock-data';
+import { ChatMessage } from '@/lib/firestore/chat';
 import { format } from 'date-fns';
 
 interface ChatBubbleProps {

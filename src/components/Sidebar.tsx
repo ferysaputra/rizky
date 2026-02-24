@@ -2,18 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, FileEdit, Users, MessageSquare, Settings, LogOut, Heart, Menu, X } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const sidebarItems = [
     { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
-    { href: '/admin/cms', icon: FileEdit, label: 'Content Manager' },
-    { href: '/admin/users', icon: Users, label: 'Users' },
-    { href: '/admin/chat', icon: MessageSquare, label: 'Support Chat' },
+    { href: '/admin/cms', icon: FileEdit, label: 'Pengelola Konten' },
+    { href: '/admin/users', icon: Users, label: 'Pengguna' },
+    { href: '/admin/chat', icon: MessageSquare, label: 'Obrolan Bantuan' },
 ];
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const router = useRouter();
+    const { logout } = useAuth();
     const [isOpen, setIsOpen] = useState(true);
 
     useEffect(() => {
@@ -21,6 +24,15 @@ export default function Sidebar() {
             setIsOpen(false);
         }
     }, []);
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            router.push('/login');
+        } catch (error) {
+            console.error('Error logging out:', error);
+        }
+    };
 
     return (
         <>
@@ -86,11 +98,11 @@ export default function Sidebar() {
                 <div className="border-t border-white/10 pt-4 mt-4 flex flex-col gap-1.5">
                     <button className="admin-sidebar-item w-full">
                         <Settings size={20} />
-                        <span>Settings</span>
+                        <span>Pengaturan</span>
                     </button>
-                    <button className="admin-sidebar-item w-full text-red-400/70 hover:text-red-400">
+                    <button onClick={handleLogout} className="admin-sidebar-item w-full text-red-400/70 hover:text-red-400">
                         <LogOut size={20} />
-                        <span>Logout</span>
+                        <span>Keluar</span>
                     </button>
                 </div>
             </aside>

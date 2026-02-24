@@ -1,6 +1,6 @@
 'use client';
 
-import { Note } from '@/lib/mock-data';
+import { Note } from '@/lib/firestore/notes';
 import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState } from 'react';

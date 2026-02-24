@@ -1,39 +1,56 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { mockChatThreads, mockChatMessages, ChatMessage, ChatThread } from '@/lib/mock-data';
-import { Send, Search, Paperclip, MoreVertical } from 'lucide-react';
-import { format } from 'date-fns';
+import { useState, useEffect, useRef } from 'react';
+import ChatBubble from '@/components/ChatBubble';
+import { Send, Search } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { subscribeToThreads, subscribeToMessages, sendMessage, ChatThread, ChatMessage } from '@/lib/firestore/chat';
 
 export default function AdminChatPage() {
-    const [selectedThread, setSelectedThread] = useState<ChatThread>(mockChatThreads[0]);
-    const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages);
+    const { user } = useAuth();
+    const [threads, setThreads] = useState<ChatThread[]>([]);
+    const [selectedThread, setSelectedThread] = useState<ChatThread | null>(null);
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
+    const [loadingThreads, setLoadingThreads] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const adminId = 'admin1';
+    // Subscribe to all threads
+    useEffect(() => {
+        const unsubscribe = subscribeToThreads((threadList) => {
+            setThreads(threadList);
+            setLoadingThreads(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    // Subscribe to messages when a thread is selected
+    useEffect(() => {
+        if (!selectedThread) return;
+        const unsubscribe = subscribeToMessages(selectedThread.id, (msgs) => {
+            setMessages(msgs);
+        });
+        return () => unsubscribe();
+    }, [selectedThread]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    const filteredThreads = mockChatThreads.filter((t) =>
+    const handleSend = async () => {
+        if (!newMessage.trim() || !selectedThread || !user) return;
+        try {
+            await sendMessage(selectedThread.id, user.uid, newMessage);
+            setNewMessage('');
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
+    };
+
+    const filteredThreads = threads.filter((t) =>
         t.participantName.toLowerCase().includes(searchQuery.toLowerCase())
     );
-
-    const handleSend = () => {
-        if (!newMessage.trim()) return;
-        const msg: ChatMessage = {
-            id: Date.now().toString(),
-            senderId: adminId,
-            text: newMessage,
-            timestamp: new Date(),
-            isRead: false,
-        };
-        setMessages([...messages, msg]);
-        setNewMessage('');
-    };
 
     return (
         <div className="animate-fade-in">
@@ -45,126 +62,117 @@ export default function AdminChatPage() {
             <div className="glass-card-strong overflow-hidden flex h-[calc(100vh-12rem)]">
                 {/* Thread List */}
                 <div className="w-80 border-r border-border flex flex-col shrink-0">
-                    {/* Search */}
-                    <div className="p-4 border-b border-border">
+                    <div className="p-3 border-b border-border">
                         <div className="relative">
-                            {/*Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />*/}
+                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
                             <input
                                 type="text"
-                                placeholder="Search conversations..."
+                                placeholder="Cari percakapan..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="input-field pl-9 py-2 text-sm"
+                                className="input-field pl-9 text-xs py-2"
                             />
                         </div>
                     </div>
-
-                    {/* Threads */}
                     <div className="flex-1 overflow-y-auto">
-                        {filteredThreads.map((thread) => (
-                            <button
-                                key={thread.id}
-                                onClick={() => setSelectedThread(thread)}
-                                className={`w-full flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors text-left border-b border-border/30 ${selectedThread.id === thread.id ? 'bg-primary/[0.03] border-l-2 border-l-primary' : ''
-                                    }`}
-                            >
-                                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-lg shrink-0">
-                                    {thread.avatar}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between">
-                                        <h4 className="text-sm font-semibold truncate">{thread.participantName}</h4>
-                                        <span className="text-[10px] text-muted shrink-0">
-                                            {format(thread.updatedAt, 'HH:mm')}
-                                        </span>
+                        {loadingThreads ? (
+                            <div className="p-4 space-y-3">
+                                {Array.from({ length: 4 }).map((_, i) => (
+                                    <div key={i} className="h-14 rounded-xl bg-gray-100 animate-pulse" />
+                                ))}
+                            </div>
+                        ) : filteredThreads.length === 0 ? (
+                            <div className="text-center py-12">
+                                <p className="text-4xl mb-2">💬</p>
+                                <p className="text-muted text-xs">Belum ada percakapan</p>
+                            </div>
+                        ) : (
+                            filteredThreads.map((thread) => (
+                                <div
+                                    key={thread.id}
+                                    onClick={() => setSelectedThread(thread)}
+                                    className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors border-b border-border/30 ${selectedThread?.id === thread.id ? 'bg-primary/5' : ''
+                                        }`}
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-lg shrink-0">
+                                        {thread.avatar}
                                     </div>
-                                    <p className="text-xs text-muted truncate mt-0.5">{thread.lastMessage}</p>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-semibold truncate">{thread.participantName}</p>
+                                        <p className="text-xs text-muted truncate mt-0.5">{thread.lastMessage}</p>
+                                    </div>
+                                    {thread.unreadCount > 0 && (
+                                        <span className="w-5 h-5 rounded-full bg-primary text-white text-[10px] flex items-center justify-center font-bold shrink-0">
+                                            {thread.unreadCount}
+                                        </span>
+                                    )}
                                 </div>
-                                {thread.unreadCount > 0 && (
-                                    <span className="w-5 h-5 rounded-full bg-primary text-white text-[10px] flex items-center justify-center font-bold shrink-0">
-                                        {thread.unreadCount}
-                                    </span>
-                                )}
-                            </button>
-                        ))}
+                            ))
+                        )}
                     </div>
                 </div>
 
                 {/* Chat Area */}
                 <div className="flex-1 flex flex-col">
-                    {/* Chat Header */}
-                    <div className="h-16 border-b border-border flex items-center justify-between px-5 shrink-0">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-lg">
-                                {selectedThread.avatar}
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-bold">{selectedThread.participantName}</h3>
-                                <div className="flex items-center gap-1.5">
-                                    <span className="w-2 h-2 rounded-full bg-success" />
+                    {selectedThread ? (
+                        <>
+                            {/* Header */}
+                            <div className="px-4 py-3 border-b border-border flex items-center gap-3 shrink-0">
+                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm">
+                                    {selectedThread.avatar}
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-sm">{selectedThread.participantName}</h3>
                                     <span className="text-[10px] text-muted">Online</span>
                                 </div>
                             </div>
-                        </div>
-                        <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                            <MoreVertical size={18} className="text-muted" />
-                        </button>
-                    </div>
 
-                    {/* Messages */}
-                    <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
-                        <div className="flex items-center justify-center mb-4">
-                            <span className="px-3 py-1 rounded-full bg-gray-100 text-[10px] text-muted font-medium">
-                                Today
-                            </span>
-                        </div>
-
-                        {messages.map((msg) => {
-                            const isAdmin = msg.senderId === adminId;
-                            return (
-                                <div key={msg.id} className={`flex ${isAdmin ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'}`}>
-                                        <div
-                                            className={`px-4 py-2.5 max-w-[70%] text-sm leading-relaxed ${isAdmin
-                                                ? 'bg-gradient-to-br from-primary to-accent text-white rounded-2xl rounded-br-sm'
-                                                : 'bg-gray-100 text-foreground rounded-2xl rounded-bl-sm'
-                                                }`}
-                                        >
-                                            {msg.text}
-                                        </div>
-                                        <span className="text-[10px] text-muted mt-1 px-1">
-                                            {format(msg.timestamp, 'HH:mm')}
-                                        </span>
-                                    </div>
+                            {/* Messages */}
+                            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
+                                <div className="flex items-center justify-center mb-4">
+                                    <span className="px-3 py-1 rounded-full bg-gray-100 text-[10px] text-muted font-medium">
+                                        Hari ini
+                                    </span>
                                 </div>
-                            );
-                        })}
-                        <div ref={messagesEndRef} />
-                    </div>
+                                {messages.map((msg) => (
+                                    <ChatBubble
+                                        key={msg.id}
+                                        message={msg}
+                                        isCurrentUser={msg.senderId === user?.uid}
+                                    />
+                                ))}
+                                <div ref={messagesEndRef} />
+                            </div>
 
-                    {/* Input */}
-                    <div className="border-t border-border px-4 py-3 flex items-end gap-2">
-                        <button className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-colors shrink-0">
-                            <Paperclip size={18} className="text-muted" />
-                        </button>
-                        <div className="flex-1">
-                            <input
-                                type="text"
-                                placeholder="Type a reply..."
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                className="input-field text-sm"
-                            />
+                            {/* Input */}
+                            <div className="px-4 py-3 border-t border-border shrink-0">
+                                <div className="flex items-end gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Ketik balasan..."
+                                        value={newMessage}
+                                        onChange={(e) => setNewMessage(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                                        className="input-field flex-1 text-sm"
+                                    />
+                                    <button
+                                        onClick={handleSend}
+                                        disabled={!newMessage.trim()}
+                                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent text-white flex items-center justify-center disabled:opacity-40 shrink-0"
+                                    >
+                                        <Send size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="flex-1 flex items-center justify-center">
+                            <div className="text-center">
+                                <p className="text-4xl mb-3">👩‍💼</p>
+                                <p className="text-muted text-sm">Pilih percakapan untuk memulai</p>
+                            </div>
                         </div>
-                        <button
-                            onClick={handleSend}
-                            disabled={!newMessage.trim()}
-                            className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent text-white flex items-center justify-center shrink-0 disabled:opacity-40 hover:shadow-md transition-all"
-                        >
-                            <Send size={18} />
-                        </button>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -2,13 +2,48 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Heart, Mail, Lock, Eye, EyeOff, User, ArrowRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Heart, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function RegisterPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const { register } = useAuth();
+    const router = useRouter();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+
+        if (password.length < 6) {
+            setError('Kata sandi harus minimal 6 karakter.');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await register(email, password, name);
+            router.push('/app');
+        } catch (err: unknown) {
+            const firebaseError = err as { code?: string };
+            if (firebaseError.code === 'auth/email-already-in-use') {
+                setError('Email ini sudah terdaftar.');
+            } else if (firebaseError.code === 'auth/weak-password') {
+                setError('Kata sandi terlalu lemah. Gunakan minimal 6 karakter.');
+            } else if (firebaseError.code === 'auth/invalid-email') {
+                setError('Format email tidak valid.');
+            } else {
+                setError('Terjadi kesalahan. Silakan coba lagi.');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-[#fdf6f9] via-white to-[#fef0f5] flex items-center justify-center px-6">
@@ -21,23 +56,29 @@ export default function RegisterPage() {
                     <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-4 shadow-lg shadow-primary/20">
                         <Heart size={28} className="text-white" fill="white" />
                     </div>
-                    <h1 className="font-display text-2xl font-extrabold gradient-text">Create Account</h1>
-                    <p className="text-muted text-sm mt-1">Join Smart Haid and take charge of your health</p>
+                    <h1 className="font-display text-2xl font-extrabold gradient-text">Buat Akun</h1>
+                    <p className="text-muted text-sm mt-1">Bergabung dengan Smart Haid dan kelola kesehatan Anda</p>
                 </div>
 
                 {/* Form */}
-                <div className="glass-card-strong p-6">
+                <form onSubmit={handleSubmit} className="glass-card-strong p-6">
                     <div className="space-y-4">
+                        {error && (
+                            <div className="bg-danger/10 text-danger text-xs font-medium p-3 rounded-xl">
+                                {error}
+                            </div>
+                        )}
+
                         <div>
-                            <label className="text-xs font-semibold text-muted block mb-1.5">Full Name</label>
+                            <label className="text-xs font-semibold text-muted block mb-1.5">Nama Lengkap</label>
                             <div className="relative">
-                                {/*<User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />*/}
                                 <input
                                     type="text"
-                                    placeholder="Your full name"
+                                    placeholder="Nama lengkap Anda"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="input-field pl-10"
+                                    className="input-field pl-4"
+                                    required
                                 />
                             </div>
                         </div>
@@ -45,13 +86,13 @@ export default function RegisterPage() {
                         <div>
                             <label className="text-xs font-semibold text-muted block mb-1.5">Email Address</label>
                             <div className="relative">
-                                {/*<Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />*/}
                                 <input
                                     type="email"
                                     placeholder="your@email.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="input-field pl-10"
+                                    className="input-field pl-4"
+                                    required
                                 />
                             </div>
                         </div>
@@ -59,15 +100,16 @@ export default function RegisterPage() {
                         <div>
                             <label className="text-xs font-semibold text-muted block mb-1.5">Password</label>
                             <div className="relative">
-                                {/*<Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />*/}
                                 <input
                                     type={showPassword ? 'text' : 'password'}
-                                    placeholder="Min. 8 characters"
+                                    placeholder="Min. 6 karakter"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="input-field pl-10 pr-10"
+                                    className="input-field pl-4 pr-10"
+                                    required
                                 />
                                 <button
+                                    type="button"
                                     onClick={() => setShowPassword(!showPassword)}
                                     className="absolute right-3.5 top-1/2 -translate-y-1/2"
                                 >
@@ -85,37 +127,31 @@ export default function RegisterPage() {
                         <label className="flex items-start gap-2 cursor-pointer">
                             <input type="checkbox" className="w-4 h-4 rounded accent-primary mt-0.5" />
                             <span className="text-xs text-muted leading-relaxed">
-                                I agree to the{' '}
-                                <span className="text-primary font-semibold">Terms of Service</span> and{' '}
-                                <span className="text-primary font-semibold">Privacy Policy</span>
+                                Saya menyetujui{' '}
+                                <span className="text-primary font-semibold">Ketentuan Layanan</span> dan{' '}
+                                <span className="text-primary font-semibold">Kebijakan Privasi</span>
                             </span>
                         </label>
 
-                        <Link href="/app">
-                            <button className="btn-primary w-full flex items-center justify-center gap-2 py-3">
-                                Create Account <ArrowRight size={16} />
-                            </button>
-                        </Link>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="btn-primary w-full flex items-center justify-center gap-2 py-3 disabled:opacity-60"
+                        >
+                            {loading ? (
+                                <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                                <>Buat Akun <ArrowRight size={16} /></>
+                            )}
+                        </button>
                     </div>
-
-                    {/* Divider */}
-                    <div className="flex items-center gap-3 my-5">
-                        <div className="flex-1 h-px bg-border" />
-                        <span className="text-xs text-muted">or</span>
-                        <div className="flex-1 h-px bg-border" />
-                    </div>
-
-                    <button className="btn-secondary w-full flex items-center justify-center gap-2 py-2.5">
-                        <span className="text-lg">🔐</span>
-                        Continue with Google
-                    </button>
-                </div>
+                </form>
 
                 {/* Login Link */}
                 <p className="text-center text-sm text-muted mt-6">
-                    Already have an account?{' '}
+                    Sudah punya akun?{' '}
                     <Link href="/login" className="text-primary font-semibold hover:underline">
-                        Sign In
+                        Masuk
                     </Link>
                 </p>
             </div>
