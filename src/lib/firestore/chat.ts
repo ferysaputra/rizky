@@ -11,6 +11,7 @@ import {
     serverTimestamp,
     Timestamp,
     limit,
+    increment,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
@@ -90,7 +91,7 @@ export function subscribeToMessages(threadId: string, callback: (messages: ChatM
 }
 
 // Send a message
-export async function sendMessage(threadId: string, senderId: string, text: string) {
+export async function sendMessage(threadId: string, senderId: string, text: string, isAdmin: boolean = false) {
     const messagesRef = collection(db, 'chats', threadId, 'messages');
     await addDoc(messagesRef, {
         senderId,
@@ -99,12 +100,19 @@ export async function sendMessage(threadId: string, senderId: string, text: stri
         isRead: false,
     });
 
-    // Update thread's last message
+    // Update thread's last message and increment unread if sent by user
     const threadRef = doc(db, 'chats', threadId);
     await updateDoc(threadRef, {
         lastMessage: text,
         updatedAt: serverTimestamp(),
+        ...(isAdmin ? {} : { unreadCount: increment(1) }),
     });
+}
+
+// Mark thread as read (admin opens conversation)
+export async function markThreadAsRead(threadId: string) {
+    const threadRef = doc(db, 'chats', threadId);
+    await updateDoc(threadRef, { unreadCount: 0 });
 }
 
 // Get user's thread (for user view)

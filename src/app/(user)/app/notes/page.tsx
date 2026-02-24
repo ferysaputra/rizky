@@ -158,8 +158,8 @@ export default function NotesPage() {
 
             {/* Note Edit Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center animate-fade-in">
-                    <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 animate-slide-up">
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowModal(false)}>
+                    <div className="bg-white rounded-2xl w-full max-w-md p-6 animate-slide-up" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-5">
                             <h2 className="font-display font-bold text-lg">
                                 {editingNote ? 'Edit Catatan' : 'Catatan Baru'}
@@ -208,8 +208,8 @@ export default function NotesPage() {
 
             {/* Delete Confirmation Modal */}
             {noteToDelete && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center animate-fade-in">
-                    <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 animate-slide-up shadow-xl">
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={() => setNoteToDelete(null)}>
+                    <div className="bg-white rounded-2xl w-full max-w-md p-6 animate-slide-up shadow-xl" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-display font-bold text-lg text-danger">Hapus Catatan?</h2>
                             <button

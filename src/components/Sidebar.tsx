@@ -96,10 +96,10 @@ export default function Sidebar() {
 
                 {/* Bottom actions */}
                 <div className="border-t border-white/10 pt-4 mt-4 flex flex-col gap-1.5">
-                    <button className="admin-sidebar-item w-full">
+                    {/*button className="admin-sidebar-item w-full">
                         <Settings size={20} />
                         <span>Pengaturan</span>
-                    </button>
+                    </button>*/}
                     <button onClick={handleLogout} className="admin-sidebar-item w-full text-red-400/70 hover:text-red-400">
                         <LogOut size={20} />
                         <span>Keluar</span>

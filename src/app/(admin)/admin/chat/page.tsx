@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import ChatBubble from '@/components/ChatBubble';
 import { Send, Search } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { subscribeToThreads, subscribeToMessages, sendMessage, ChatThread, ChatMessage } from '@/lib/firestore/chat';
+import { subscribeToThreads, subscribeToMessages, sendMessage, markThreadAsRead, ChatThread, ChatMessage } from '@/lib/firestore/chat';
 
 export default function AdminChatPage() {
     const { user } = useAuth();
@@ -38,10 +38,21 @@ export default function AdminChatPage() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
+    const handleSelectThread = async (thread: ChatThread) => {
+        setSelectedThread(thread);
+        if (thread.unreadCount > 0) {
+            try {
+                await markThreadAsRead(thread.id);
+            } catch (error) {
+                console.error('Error marking thread as read:', error);
+            }
+        }
+    };
+
     const handleSend = async () => {
         if (!newMessage.trim() || !selectedThread || !user) return;
         try {
-            await sendMessage(selectedThread.id, user.uid, newMessage);
+            await sendMessage(selectedThread.id, user.uid, newMessage, true);
             setNewMessage('');
         } catch (error) {
             console.error('Error sending message:', error);
@@ -52,10 +63,19 @@ export default function AdminChatPage() {
         t.participantName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    const totalUnread = threads.reduce((sum, t) => sum + t.unreadCount, 0);
+
     return (
         <div className="animate-fade-in">
             <div className="mb-6">
-                <h1 className="font-display text-2xl font-bold">Obrolan Bantuan</h1>
+                <div className="flex items-center gap-3">
+                    <h1 className="font-display text-2xl font-bold">Obrolan Bantuan</h1>
+                    {totalUnread > 0 && (
+                        <span className="px-2.5 py-1 rounded-full bg-primary text-white text-xs font-bold">
+                            {totalUnread} belum dibaca
+                        </span>
+                    )}
+                </div>
                 <p className="text-muted text-sm mt-1">Tanggapi permintaan bantuan pengguna</p>
             </div>
 
@@ -64,7 +84,7 @@ export default function AdminChatPage() {
                 <div className="w-80 border-r border-border flex flex-col shrink-0">
                     <div className="p-3 border-b border-border">
                         <div className="relative">
-                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                            {/*<Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />*/}
                             <input
                                 type="text"
                                 placeholder="Cari percakapan..."
@@ -90,7 +110,7 @@ export default function AdminChatPage() {
                             filteredThreads.map((thread) => (
                                 <div
                                     key={thread.id}
-                                    onClick={() => setSelectedThread(thread)}
+                                    onClick={() => handleSelectThread(thread)}
                                     className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors border-b border-border/30 ${selectedThread?.id === thread.id ? 'bg-primary/5' : ''
                                         }`}
                                 >
