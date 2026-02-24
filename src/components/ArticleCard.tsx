@@ -5,12 +5,13 @@ import { format } from 'date-fns';
 interface ArticleCardProps {
     article: Article;
     variant?: 'featured' | 'compact';
+    onClick?: () => void;
 }
 
-export default function ArticleCard({ article, variant = 'compact' }: ArticleCardProps) {
+export default function ArticleCard({ article, variant = 'compact', onClick }: ArticleCardProps) {
     if (variant === 'featured') {
         return (
-            <div className="glass-card-strong overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
+            <div onClick={onClick} className="glass-card-strong overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
                 {/* Gradient banner instead of image */}
                 <div className="h-40 bg-gradient-to-br from-primary/20 via-accent/15 to-primary-light/20 relative overflow-hidden">
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -42,7 +43,7 @@ export default function ArticleCard({ article, variant = 'compact' }: ArticleCar
     }
 
     return (
-        <div className="glass-card p-3.5 flex gap-3.5 group cursor-pointer transition-all duration-300 hover:shadow-md hover:shadow-primary/8">
+        <div onClick={onClick} className="glass-card p-3.5 flex gap-3.5 group cursor-pointer transition-all duration-300 hover:shadow-md hover:shadow-primary/8">
             {/* Small gradient thumbnail */}
             <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 flex items-center justify-center shrink-0">
                 <span className="text-2xl opacity-50">📄</span>

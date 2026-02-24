@@ -1,5 +1,7 @@
 'use client';
 
+import React from 'react';
+
 import { useState, useEffect } from 'react';
 import { getUsers, UserProfile } from '@/lib/firestore/users';
 import { getNotes, Note } from '@/lib/firestore/notes';
@@ -101,8 +103,8 @@ export default function AdminUsersPage() {
                                 </tr>
                             ) : (
                                 filteredUsers.map((user) => (
-                                    <>
-                                        <tr key={user.uid} className="border-b border-border/50 hover:bg-gray-50/50 transition-colors">
+                                    <React.Fragment key={user.uid}>
+                                        <tr className="border-b border-border/50 hover:bg-gray-50/50 transition-colors">
                                             <td className="p-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-base">
@@ -160,7 +162,7 @@ export default function AdminUsersPage() {
                                                 </td>
                                             </tr>
                                         )}
-                                    </>
+                                    </React.Fragment>
                                 ))
                             )}
                         </tbody>
