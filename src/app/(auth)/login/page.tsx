@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Heart, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -12,8 +12,22 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const [loginSuccess, setLoginSuccess] = useState(false);
+    const { login, userData, user } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get('redirect');
+
+    // After login, wait for userData to load then redirect based on role
+    useEffect(() => {
+        if (loginSuccess && user && userData) {
+            if (redirectTo === '/admin' && userData.role === 'admin') {
+                router.push('/admin');
+            } else {
+                router.push('/app');
+            }
+        }
+    }, [loginSuccess, user, userData, redirectTo, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -21,11 +35,7 @@ export default function LoginPage() {
         setLoading(true);
         try {
             await login(email, password);
-            // AuthContext will set userData, then we redirect based on role
-            // Small delay to let Firestore fetch the user profile
-            setTimeout(() => {
-                router.push('/app');
-            }, 500);
+            setLoginSuccess(true);
         } catch (err: unknown) {
             const firebaseError = err as { code?: string };
             if (firebaseError.code === 'auth/user-not-found' || firebaseError.code === 'auth/wrong-password' || firebaseError.code === 'auth/invalid-credential') {

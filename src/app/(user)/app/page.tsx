@@ -73,9 +73,9 @@ export default function AppHomePage() {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button className="w-10 h-10 rounded-xl glass-card flex items-center justify-center hover:bg-primary/5 transition-colors">
+                        {/*<button className="w-10 h-10 rounded-xl glass-card flex items-center justify-center hover:bg-primary/5 transition-colors">
                             <Search size={18} className="text-muted" />
-                        </button>
+                        </button>*/}
                         <button
                             onClick={async () => { await logout(); router.push('/'); }}
                             className="w-10 h-10 rounded-xl glass-card flex items-center justify-center hover:bg-danger/10 transition-colors"
