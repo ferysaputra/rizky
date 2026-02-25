@@ -66,12 +66,21 @@ export async function getOrCreateThread(
 export function subscribeToThreads(callback: (threads: ChatThread[]) => void) {
     const q = query(chatsRef, orderBy('updatedAt', 'desc'));
     return onSnapshot(q, (snapshot) => {
-        const threads = snapshot.docs.map((doc) => ({
+        const allThreads = snapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
             updatedAt: (doc.data().updatedAt as Timestamp)?.toDate?.() || new Date(),
         })) as ChatThread[];
-        callback(threads);
+
+        // Deduplicate: keep only the most recent thread per participant
+        const seen = new Map<string, ChatThread>();
+        for (const thread of allThreads) {
+            const participantKey = thread.participants?.[0] || thread.id;
+            if (!seen.has(participantKey)) {
+                seen.set(participantKey, thread);
+            }
+        }
+        callback(Array.from(seen.values()));
     });
 }
 
