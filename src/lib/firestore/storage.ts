@@ -1,4 +1,4 @@
-import { ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 
 export interface StorageFile {
@@ -7,33 +7,36 @@ export interface StorageFile {
     path: string;
 }
 
-export async function uploadPDF(file: File): Promise<string> {
-    const storageRef = ref(storage, `pdfs/${file.name}`);
-    await uploadBytes(storageRef, file);
-    return await getDownloadURL(storageRef);
-}
+// --- PDF functions now use Cloudflare R2 via API routes ---
 
-export async function getPDFUrl(path: string): Promise<string> {
-    const storageRef = ref(storage, path);
-    return await getDownloadURL(storageRef);
+export async function uploadPDF(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch('/api/pdf/upload', {
+        method: 'POST',
+        body: formData,
+    });
+
+    if (!res.ok) {
+        throw new Error('PDF upload failed');
+    }
+
+    const data = await res.json();
+    return data.url;
 }
 
 export async function listPDFs(): Promise<StorageFile[]> {
-    const pdfsRef = ref(storage, 'pdfs');
     try {
-        const result = await listAll(pdfsRef);
-        const files = await Promise.all(
-            result.items.map(async (item) => ({
-                name: item.name,
-                url: await getDownloadURL(item),
-                path: item.fullPath,
-            }))
-        );
-        return files;
+        const res = await fetch('/api/pdf/list');
+        if (!res.ok) return [];
+        return await res.json();
     } catch {
         return [];
     }
 }
+
+// --- Image functions still use Firebase Storage ---
 
 export async function uploadImage(file: File): Promise<string> {
     const storageRef = ref(storage, `images/${Date.now()}_${file.name}`);
